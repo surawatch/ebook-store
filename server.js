@@ -6,7 +6,7 @@ const app = express();
 
 // ปรับรหัสผ่าน PostgreSQL ให้ตรงกับเครื่องของคุณ
 const pool = new Pool({
-  connectionString: 'postgresql://postgres:admin123@localhost:5432/ebookdb',
+  connectionString: process.env.DATABASE_URL || 'postgresql://postgres:admin123@localhost:5432/ebookdb',
   ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
 });
 
@@ -1105,5 +1105,5 @@ app.get('/reports/export-csv', async (req, res) => {
   res.status(200).send('\uFEFF' + csv);
 });
 
-const PORT = 3000;
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
