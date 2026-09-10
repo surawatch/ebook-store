@@ -7,7 +7,9 @@ const app = express();
 // ปรับรหัสผ่าน PostgreSQL ให้ตรงกับเครื่องของคุณ
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL || 'postgresql://postgres:admin123@localhost:5432/ebookdb',
-  ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
 
 app.use(express.urlencoded({ extended: true }));
@@ -325,7 +327,8 @@ app.get('/', async (req, res) => {
       </html>
     `);
   } catch (err) {
-    res.status(500).send(err.message);
+    console.error('SERVER DB ERROR:', err);
+    res.status(500).send(`เกิดข้อผิดพลาด: ${err.message}`);
   }
 });
 
