@@ -880,6 +880,7 @@ app.get('/admin/categories', adminGuard, async (req, res) => {
                 <th class="p-4">ชื่อหมวดหมู่</th>
                 <th class="p-4">คำอธิบาย</th>
                 <th class="p-4 text-center">จำนวนหนังสือในหมวด</th>
+                <th class="p-4 text-center">จัดการ</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-200">
@@ -889,6 +890,13 @@ app.get('/admin/categories', adminGuard, async (req, res) => {
                   <td class="p-4 font-bold text-gray-800">${c.category_name}</td>
                   <td class="p-4 text-gray-500">${c.description || '-'}</td>
                   <td class="p-4 text-center font-bold text-blue-600">${c.total_books} เล่ม</td>
+                  <td class="p-4 text-center">
+  <form method="POST" action="/admin/categories/${c.category_id}/delete" onsubmit="return confirm('ต้องการลบหมวดหมู่นี้หรือไม่?');">
+    <button type="submit" class="text-xs bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-200 px-3 py-1.5 rounded-lg font-medium">
+      🗑️ ลบ
+    </button>
+  </form>
+</td>
                 </tr>
               `).join('')}
             </tbody>
