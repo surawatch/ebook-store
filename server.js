@@ -734,6 +734,24 @@ app.get('/admin/ebooks', adminGuard, async (req, res) => {
       <div class="max-w-7xl mx-auto px-4 py-8">
         <h1 class="text-2xl font-bold text-gray-900 mb-6">📚 จัดการหนังสือ E-Book</h1>
         
+        <!-- ฟอร์มเพิ่มผู้แต่งใหม่ -->
+        <div class="bg-white p-6 rounded-xl border mb-6 shadow-sm">
+          <h2 class="font-bold text-lg mb-4 text-gray-800">➕ เพิ่มผู้แต่งใหม่</h2>
+          <form method="POST" action="/admin/add-author" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label class="text-xs font-medium text-gray-600">ชื่อผู้แต่ง</label>
+              <input type="text" name="name" required placeholder="เช่น Eiichiro Oda" class="w-full border p-2 rounded-lg text-sm mt-1">
+            </div>
+            <div class="md:col-span-2">
+              <label class="text-xs font-medium text-gray-600">ประวัติย่อ / คำอธิบาย (เว้นว่างได้)</label>
+              <input type="text" name="bio" placeholder="ประวัติย่อของผู้แต่ง..." class="w-full border p-2 rounded-lg text-sm mt-1">
+            </div>
+            <button type="submit" class="md:col-span-3 bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded-lg font-medium text-sm">
+              บันทึกผู้แต่ง
+            </button>
+          </form>
+        </div>
+
         <!-- ฟอร์มเพิ่มหนังสือใหม่ -->
         <div class="bg-white p-6 rounded-xl border mb-8 shadow-sm">
           <h2 class="font-bold text-lg mb-4 text-gray-800">➕ เพิ่มหนังสือเล่มใหม่</h2>
@@ -886,6 +904,22 @@ app.post('/admin/categories/add', adminGuard, async (req, res) => {
   const { category_name, description } = req.body;
   await pool.query('INSERT INTO categories (category_name, description) VALUES ($1, $2)', [category_name, description]);
   res.redirect('/admin/categories');
+});
+app.post('/admin/add-author', adminGuard, async (req, res) => {
+  try {
+    const { name, bio } = req.body;
+    if (!name || !name.trim()) {
+      return res.status(400).send('กรุณากรอกชื่อผู้แต่ง');
+    }
+    await pool.query(
+      'INSERT INTO authors (author_name, bio) VALUES ($1, $2)',
+      [name.trim(), bio ? bio.trim() : '']
+    );
+    res.redirect('/admin/ebooks');
+  } catch (err) {
+    console.error('ERROR ADDING AUTHOR:', err);
+    res.status(500).send(`เกิดข้อผิดพลาด: ${err.message}`);
+  }
 });
 
 // 5.4 จัดการผู้ใช้ (ดูรายชื่อ / ปรับ Role)
