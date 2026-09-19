@@ -905,6 +905,22 @@ app.post('/admin/categories/add', adminGuard, async (req, res) => {
   await pool.query('INSERT INTO categories (category_name, description) VALUES ($1, $2)', [category_name, description]);
   res.redirect('/admin/categories');
 });
+app.post('/admin/categories/:id/delete', adminGuard, async (req, res) => {
+  const categoryId = req.params.id;
+  try {
+    // เช็กก่อนว่ามีหนังสือค้างอยู่ในหมวดหมู่นี้ไหม
+    const checkBooks = await pool.query('SELECT COUNT(*) FROM ebooks WHERE category_id = $1', [categoryId]);
+    if (parseInt(checkBooks.rows[0].count) > 0) {
+      return res.send(`<script>alert('ไม่สามารถลบได้ เนื่องจากยังมีหนังสืออยู่ในหมวดหมู่นี้'); window.location='/admin/categories';</script>`);
+    }
+
+    await pool.query('DELETE FROM categories WHERE category_id = $1', [categoryId]);
+    res.redirect('/admin/categories');
+  } catch (err) {
+    console.error('ERROR DELETING CATEGORY:', err);
+    res.status(500).send(`เกิดข้อผิดพลาด: ${err.message}`);
+  }
+});
 app.post('/admin/add-author', adminGuard, async (req, res) => {
   try {
     const { name, bio } = req.body;
