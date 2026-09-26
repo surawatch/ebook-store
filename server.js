@@ -6,6 +6,7 @@ const reportsRoutes = require('./routes/reports');
 const authRoutes = require('./routes/auth');
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
+const aiRoutes = require('./routes/ai');
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -19,6 +20,8 @@ app.use(session({
 app.use('/', authRoutes);
 
 app.use('/', shopRoutes);
+
+app.use('/ai', aiRoutes);
 
 app.use('/admin', adminRoutes);
 

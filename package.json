@@ -2,9 +2,12 @@
   "name": "ebook-store",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js",
+    "test": "node --test",
+    "test:py": "python -m unittest tests/test_download_access.py",
+    "eval": "node evals/eval_runner.js"
   },
   "keywords": [],
   "author": "",

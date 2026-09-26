@@ -26,6 +26,7 @@ function renderNavbar(user, cartCount = 0) {
           </div>
           <div class="flex items-center space-x-4">
             <a href="/" class="text-gray-700 hover:text-blue-600 font-medium text-sm">หน้าร้าน</a>
+            <a href="/ai" class="text-purple-600 hover:text-purple-800 font-bold text-sm flex items-center gap-1"><span>🤖</span> ผู้ช่วย AI</a>
             <a href="/reports" class="text-gray-700 hover:text-blue-600 font-medium text-sm">รายงานสถิติ</a>
             ${user ? `
               <a href="/cart" class="relative text-gray-700 hover:text-blue-600 font-medium text-sm flex items-center">
@@ -102,7 +103,12 @@ router.get('/', async (req, res) => {
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div class="bg-gradient-to-r from-blue-700 to-indigo-800 rounded-2xl p-8 mb-8 text-white shadow-lg">
             <h1 class="text-3xl font-extrabold mb-2">ระบบฐานข้อมูลร้านค้า E-Book</h1>
-            <p class="text-blue-100 mb-6">ค้นหา ใส่ตะกร้า ชำระเงินจำลอง และรับไฟล์ลิขสิทธิ์เฉพาะคุณ</p>
+            <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+              <p class="text-blue-100 text-sm">ค้นหา ใส่ตะกร้า ชำระเงินจำลอง และรับไฟล์ลิขสิทธิ์เฉพาะคุณ</p>
+              <a href="/ai" class="inline-flex items-center gap-1.5 bg-white text-purple-700 hover:bg-purple-50 font-bold text-xs px-4 py-2 rounded-xl shadow-md transition">
+                <span>🤖</span> ลองถามผู้ช่วย AI แนะนำหนังสือ ✨
+              </a>
+            </div>
             
             <form method="GET" action="/" class="flex flex-col md:flex-row gap-3 bg-white p-2 rounded-xl shadow-md text-gray-800">
               <input type="text" name="search" placeholder="ค้นหาชื่อหนังสือ หรือชื่อผู้แต่ง..." value="${search || ''}" class="flex-1 px-4 py-2 rounded-lg border-0 focus:ring-0 text-sm">
