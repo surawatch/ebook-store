@@ -3,6 +3,7 @@ import docx
 from docx.shared import Inches, Pt, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.enum.table import WD_TABLE_ALIGNMENT, WD_ALIGN_VERTICAL
+from docx.enum.section import WD_SECTION_START
 from docx.oxml import OxmlElement, parse_xml
 from docx.oxml.ns import qn, nsdecls
 
@@ -15,26 +16,38 @@ def create_report():
         run.font.size = Pt(size_pt)
         run.font.bold = bold
         run.font.italic = italic
+        run.font.shadow = False
         if color_rgb:
             run.font.color.rgb = color_rgb
         rPr = run._r.get_or_add_rPr()
         rFonts = parse_xml(f'<w:rFonts {nsdecls("w")} w:ascii="{font_name}" w:hAnsi="{font_name}" w:cs="{font_name}"/>')
         rPr.append(rFonts)
 
+    def add_page_number(run):
+        fldChar1 = parse_xml(r'<w:fldChar %s w:fldCharType="begin"/>' % nsdecls('w'))
+        instrText = parse_xml(r'<w:instrText %s xml:space="preserve"> PAGE </w:instrText>' % nsdecls('w'))
+        fldChar2 = parse_xml(r'<w:fldChar %s w:fldCharType="separate"/>' % nsdecls('w'))
+        fldChar3 = parse_xml(r'<w:fldChar %s w:fldCharType="end"/>' % nsdecls('w'))
+        run._r.append(fldChar1)
+        run._r.append(instrText)
+        run._r.append(fldChar2)
+        run._r.append(fldChar3)
+        set_font(run, size_pt=9, color_rgb=RGBColor(140, 140, 140))
+
     # 1. Page Margins (Normal Academic 1 inch all around)
-    for section in doc.sections:
-        section.top_margin = Inches(1.0)
-        section.bottom_margin = Inches(1.0)
-        section.left_margin = Inches(1.0)
-        section.right_margin = Inches(1.0)
-        section.different_first_page_header_footer = True
-        
-        # Add Header & Footer
-        footer = section.footer
-        f_p = footer.paragraphs[0]
-        f_p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-        f_run = f_p.add_run("รายวิชา Database Mini Project - E-Book Store Management System")
-        set_font(f_run, size_pt=9, color_rgb=RGBColor(140, 140, 140))
+    sec_front = doc.sections[0]
+    sec_front.top_margin = Inches(1.0)
+    sec_front.bottom_margin = Inches(1.0)
+    sec_front.left_margin = Inches(1.0)
+    sec_front.right_margin = Inches(1.0)
+    sec_front.different_first_page_header_footer = True
+    
+    # Front Matter Footer (pages after cover)
+    footer_front = sec_front.footer
+    f_p_front = footer_front.paragraphs[0]
+    f_p_front.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    f_run_front = f_p_front.add_run("รายวิชา Database Mini Project - E-Book Store Management System")
+    set_font(f_run_front, size_pt=9, color_rgb=RGBColor(140, 140, 140))
 
     def add_p(text="", align=WD_ALIGN_PARAGRAPH.LEFT, space_before=0, space_after=4, line_spacing=1.15):
         p = doc.add_paragraph()
@@ -54,7 +67,7 @@ def create_report():
         p.paragraph_format.space_after = Pt(space_after)
         p.paragraph_format.keep_with_next = True
         r = p.add_run(text)
-        set_font(r, font_name="TH Sarabun New", size_pt=18, bold=True, color_rgb=RGBColor(30, 58, 138)) # Navy blue
+        set_font(r, font_name="TH Sarabun New", size_pt=18, bold=True, color_rgb=RGBColor(30, 58, 138))
         return p
 
     def add_h2(text, space_before=10, space_after=4):
@@ -64,7 +77,7 @@ def create_report():
         p.paragraph_format.space_after = Pt(space_after)
         p.paragraph_format.keep_with_next = True
         r = p.add_run(text)
-        set_font(r, font_name="TH Sarabun New", size_pt=15, bold=True, color_rgb=RGBColor(37, 99, 235)) # Blue
+        set_font(r, font_name="TH Sarabun New", size_pt=15, bold=True, color_rgb=RGBColor(37, 99, 235))
         return p
 
     def add_h3(text, space_before=8, space_after=2):
@@ -96,19 +109,17 @@ def create_report():
         cell = tbl.cell(0, 0)
         cell.width = Inches(6.5)
         
-        # XML styling for code background and border
         tcPr = cell._tc.get_or_add_tcPr()
         shd = parse_xml(f'<w:shd {nsdecls("w")} w:val="clear" w:color="auto" w:fill="F1F5F9"/>')
         tcPr.append(shd)
         tcBorders = parse_xml(f'''<w:tcBorders {nsdecls("w")}>
             <w:top w:val="single" w:sz="6" w:space="0" w:color="CBD5E1"/>
-            <w:left w:val="single" w:sz="24" w:space="0" w:color="3B82F6"/>
+            <w:left w:val="single" w:sz="18" w:space="0" w:color="3B82F6"/>
             <w:bottom w:val="single" w:sz="6" w:space="0" w:color="CBD5E1"/>
             <w:right w:val="single" w:sz="6" w:space="0" w:color="CBD5E1"/>
         </w:tcBorders>''')
         tcPr.append(tcBorders)
         
-        # Margins
         tcMar = parse_xml(f'''<w:tcMar {nsdecls("w")}>
             <w:top w:w="120" w:type="dxa"/>
             <w:left w:w="160" w:type="dxa"/>
@@ -124,7 +135,6 @@ def create_report():
         r = p.add_run(code_text.strip())
         set_font(r, font_name="Consolas", size_pt=10, bold=False, color_rgb=RGBColor(30, 41, 59))
         
-        # Spacing after table
         sp_p = doc.add_paragraph()
         sp_p.paragraph_format.space_before = Pt(0)
         sp_p.paragraph_format.space_after = Pt(4)
@@ -143,7 +153,7 @@ def create_report():
         tcPr.append(shd)
         tcBorders = parse_xml(f'''<w:tcBorders {nsdecls("w")}>
             <w:top w:val="single" w:sz="4" w:space="0" w:color="{border_color}"/>
-            <w:left w:val="single" w:sz="24" w:space="0" w:color="{border_color}"/>
+            <w:left w:val="single" w:sz="18" w:space="0" w:color="{border_color}"/>
             <w:bottom w:val="single" w:sz="4" w:space="0" w:color="{border_color}"/>
             <w:right w:val="single" w:sz="4" w:space="0" w:color="{border_color}"/>
         </w:tcBorders>''')
@@ -207,10 +217,10 @@ def create_report():
                 tcPr = cell._tc.get_or_add_tcPr()
                 tcPr.append(parse_xml(f'<w:shd {nsdecls("w")} w:val="clear" w:color="auto" w:fill="{bg}"/>'))
                 tcBorders = parse_xml(f'''<w:tcBorders {nsdecls("w")}>
-                    <w:top w:val="single" w:sz="4" w:space="0" w:color="E2E8F0"/>
-                    <w:left w:val="single" w:sz="4" w:space="0" w:color="E2E8F0"/>
-                    <w:bottom w:val="single" w:sz="4" w:space="0" w:color="E2E8F0"/>
-                    <w:right w:val="single" w:sz="4" w:space="0" w:color="E2E8F0"/>
+                    <w:top w:val="single" w:sz="4" w:space="0" w:color="CBD5E1"/>
+                    <w:left w:val="single" w:sz="4" w:space="0" w:color="CBD5E1"/>
+                    <w:bottom w:val="single" w:sz="4" w:space="0" w:color="CBD5E1"/>
+                    <w:right w:val="single" w:sz="4" w:space="0" w:color="CBD5E1"/>
                 </w:tcBorders>''')
                 tcPr.append(tcBorders)
                 tcMar = parse_xml(f'''<w:tcMar {nsdecls("w")}>
@@ -231,63 +241,152 @@ def create_report():
         sp_p.paragraph_format.space_before = Pt(0)
         sp_p.paragraph_format.space_after = Pt(6)
 
+    def style_toc_table(table, col_widths):
+        table.alignment = WD_TABLE_ALIGNMENT.CENTER
+        # Format Header
+        hdr_row = table.rows[0]
+        trPr = hdr_row._tr.get_or_add_trPr()
+        trPr.append(parse_xml(f'<w:tblHeader {nsdecls("w")}/>'))
+        trPr.append(parse_xml(f'<w:cantSplit {nsdecls("w")}/>'))
+        
+        for i, cell in enumerate(hdr_row.cells):
+            cell.width = col_widths[i]
+            cell.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+            tcPr = cell._tc.get_or_add_tcPr()
+            tcPr.append(parse_xml(f'<w:shd {nsdecls("w")} w:val="clear" w:color="auto" w:fill="FFFFFF"/>'))
+            tcBorders = parse_xml(f'''<w:tcBorders {nsdecls("w")}>
+                <w:top w:val="single" w:sz="10" w:space="0" w:color="334155"/>
+                <w:left w:val="none"/>
+                <w:bottom w:val="single" w:sz="10" w:space="0" w:color="334155"/>
+                <w:right w:val="none"/>
+            </w:tcBorders>''')
+            tcPr.append(tcBorders)
+            tcMar = parse_xml(f'''<w:tcMar {nsdecls("w")}>
+                <w:top w:w="120" w:type="dxa"/>
+                <w:left w:w="40" w:type="dxa"/>
+                <w:bottom w:w="120" w:type="dxa"/>
+                <w:right w:w="40" w:type="dxa"/>
+            </w:tcMar>''')
+            tcPr.append(tcMar)
+            p = cell.paragraphs[0]
+            p.alignment = WD_ALIGN_PARAGRAPH.LEFT if i == 0 else WD_ALIGN_PARAGRAPH.RIGHT
+            p.paragraph_format.space_before = Pt(3)
+            p.paragraph_format.space_after = Pt(3)
+            for r in p.runs:
+                set_font(r, font_name="TH Sarabun New", size_pt=14, bold=True, color_rgb=RGBColor(15, 23, 42))
+                
+        # Format Data Rows
+        for row_idx, row in enumerate(table.rows[1:], start=1):
+            trPr = row._tr.get_or_add_trPr()
+            trPr.append(parse_xml(f'<w:cantSplit {nsdecls("w")}/>'))
+            is_last = (row_idx == len(table.rows) - 1)
+            b_bottom = 'single" w:sz="10" w:space="0" w:color="334155' if is_last else 'none'
+            
+            for i, cell in enumerate(row.cells):
+                cell.width = col_widths[i]
+                cell.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+                tcPr = cell._tc.get_or_add_tcPr()
+                # Clean white background - NO zebra shading, NO shadow!
+                tcPr.append(parse_xml(f'<w:shd {nsdecls("w")} w:val="clear" w:color="auto" w:fill="FFFFFF"/>'))
+                tcBorders = parse_xml(f'''<w:tcBorders {nsdecls("w")}>
+                    <w:top w:val="none"/>
+                    <w:left w:val="none"/>
+                    <w:bottom w:val="{b_bottom}"/>
+                    <w:right w:val="none"/>
+                </w:tcBorders>''')
+                tcPr.append(tcBorders)
+                tcMar = parse_xml(f'''<w:tcMar {nsdecls("w")}>
+                    <w:top w:w="20" w:type="dxa"/>
+                    <w:left w:w="40" w:type="dxa"/>
+                    <w:bottom w:w="20" w:type="dxa"/>
+                    <w:right w:w="40" w:type="dxa"/>
+                </w:tcMar>''')
+                tcPr.append(tcMar)
+                p = cell.paragraphs[0]
+                p.alignment = WD_ALIGN_PARAGRAPH.LEFT if i == 0 else WD_ALIGN_PARAGRAPH.RIGHT
+                p.paragraph_format.space_before = Pt(0.5)
+                p.paragraph_format.space_after = Pt(0.5)
+                p.paragraph_format.line_spacing = 1.05
+                
+                title_txt = row.cells[0].paragraphs[0].text.strip()
+                is_main = title_txt.startswith(('บทที่', 'ภาคผนวก', 'บทสรุปผู้บริหาร'))
+                for r in p.runs:
+                    set_font(r, font_name="TH Sarabun New", size_pt=13.5 if is_main else 13, bold=is_main, color_rgb=RGBColor(15, 23, 42))
+                    
+        sp_p = doc.add_paragraph()
+        sp_p.paragraph_format.space_before = Pt(0)
+        sp_p.paragraph_format.space_after = Pt(6)
+
     print("Building Document Structure...")
 
     # =========================================================================
-    # 1. ปกหน้า (COVER PAGE)
+    # 1. ปกหน้า (COVER PAGE) - ตรงตามรูปแบบรูปภาพตัวอย่าง media_1790420100632.png
     # =========================================================================
-    p_cov_hdr = add_p("รายงานโครงงานพัฒนาระบบฐานข้อมูล (Database Mini Project)", align=WD_ALIGN_PARAGRAPH.CENTER, space_before=30, space_after=10)
-    p_cov_hdr.runs[0].font.size = Pt(16)
-    p_cov_hdr.runs[0].font.bold = True
-    p_cov_hdr.runs[0].font.color.rgb = RGBColor(71, 85, 105)
+    # โลโก้มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน ตรงกลาง
+    p_logo = doc.add_paragraph()
+    p_logo.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p_logo.paragraph_format.space_before = Pt(10)
+    p_logo.paragraph_format.space_after = Pt(18)
+    r_logo = p_logo.add_run()
+    logo_path = "assets/rmuti_logo.png"
+    if os.path.exists(logo_path):
+        r_logo.add_picture(logo_path, height=Inches(2.35))
 
-    p_cov_t1 = add_p("การวิเคราะห์และพัฒนาระบบร้านขายหนังสือและอีบุ๊กออนไลน์", align=WD_ALIGN_PARAGRAPH.CENTER, space_before=15, space_after=4)
-    p_cov_t1.runs[0].font.size = Pt(24)
+    # ชื่อโครงงาน (Title) 3 บรรทัด
+    p_cov_t1 = add_p("การวิเคราะห์และพัฒนาระบบร้านขายหนังสือและอีบุ๊กออนไลน์", align=WD_ALIGN_PARAGRAPH.CENTER, space_before=10, space_after=6)
+    p_cov_t1.runs[0].font.size = Pt(20)
     p_cov_t1.runs[0].font.bold = True
-    p_cov_t1.runs[0].font.color.rgb = RGBColor(30, 58, 138)
+    p_cov_t1.runs[0].font.color.rgb = RGBColor(15, 23, 42)
 
-    p_cov_t2 = add_p("E-Book Store Online Management System", align=WD_ALIGN_PARAGRAPH.CENTER, space_before=0, space_after=25)
-    p_cov_t2.runs[0].font.size = Pt(18)
+    p_cov_t2 = add_p("(E-Book Store Online Management System)", align=WD_ALIGN_PARAGRAPH.CENTER, space_before=0, space_after=6)
+    p_cov_t2.runs[0].font.size = Pt(16)
     p_cov_t2.runs[0].font.bold = True
-    p_cov_t2.runs[0].font.color.rgb = RGBColor(37, 99, 235)
+    p_cov_t2.runs[0].font.color.rgb = RGBColor(15, 23, 42)
 
-    p_sub = add_p("โครงงานกลุ่มสำหรับประยุกต์ใช้การออกแบบและพัฒนาฐานข้อมูลเชิงสัมพันธ์ (3NF)\nพร้อมระบบหน้าร้าน ตะกร้าสินค้า สั่งซื้อ ยืนยันการชำระเงินจำลอง ล็อกไฟล์ความปลอดภัย\nและระบบวิเคราะห์ข้อมูลเชิงลึก 4 ด้านด้วยภาษา SQL บนฐานข้อมูลจริง", 
-                  align=WD_ALIGN_PARAGRAPH.CENTER, space_before=5, space_after=30)
-    p_sub.runs[0].font.size = Pt(13)
-    p_sub.runs[0].font.italic = True
-    p_sub.runs[0].font.color.rgb = RGBColor(100, 116, 139)
+    p_cov_t3 = add_p("โครงงานพัฒนาระบบฐานข้อมูล (Mini Project)", align=WD_ALIGN_PARAGRAPH.CENTER, space_before=0, space_after=18)
+    p_cov_t3.runs[0].font.size = Pt(16)
+    p_cov_t3.runs[0].font.bold = True
+    p_cov_t3.runs[0].font.color.rgb = RGBColor(15, 23, 42)
 
-    # ข้อมูลกลุ่มและผู้จัดทำ
-    p_grp = add_p("จัดทำโดย (คณะผู้จัดทำโครงงาน)", align=WD_ALIGN_PARAGRAPH.CENTER, space_before=15, space_after=8)
-    p_grp.runs[0].font.size = Pt(16)
-    p_grp.runs[0].font.bold = True
-    p_grp.runs[0].font.color.rgb = RGBColor(15, 23, 42)
+    # คณะผู้จัดทำโครงงาน (อิงตามไฟล์ doc.x เดิม: สุรวัจน์ ชลเรืองทรัพย์ และ สรวิชญ์ มีมาก)
+    # จัดกึ่งกลาง ไม่มีตาราง ไม่มีเงา สอดคล้องตามรูปภาพ
+    p_a1 = add_p("นายสุรวัจน์ ชลเรืองทรัพย์", align=WD_ALIGN_PARAGRAPH.CENTER, space_before=55, space_after=2)
+    p_a1.runs[0].font.size = Pt(16)
+    p_a1.runs[0].font.color.rgb = RGBColor(15, 23, 42)
 
-    tbl_mem = doc.add_table(rows=3, cols=3)
-    tbl_mem.rows[0].cells[0].paragraphs[0].add_run("ลำดับ")
-    tbl_mem.rows[0].cells[1].paragraphs[0].add_run("ชื่อ-นามสกุล สมาชิกในกลุ่ม")
-    tbl_mem.rows[0].cells[2].paragraphs[0].add_run("รหัสนักศึกษา")
+    p_id1 = add_p("รหัสนักศึกษา 67332110217-1", align=WD_ALIGN_PARAGRAPH.CENTER, space_before=0, space_after=14)
+    p_id1.runs[0].font.size = Pt(16)
+    p_id1.runs[0].font.color.rgb = RGBColor(15, 23, 42)
 
-    tbl_mem.rows[1].cells[0].paragraphs[0].add_run("1")
-    tbl_mem.rows[1].cells[1].paragraphs[0].add_run("นายสุรวัจน์ ชลเรืองทรัพย์")
-    tbl_mem.rows[1].cells[2].paragraphs[0].add_run("67332110217-1")
+    p_a2 = add_p("นายสรวิชญ์ มีมาก", align=WD_ALIGN_PARAGRAPH.CENTER, space_before=0, space_after=2)
+    p_a2.runs[0].font.size = Pt(16)
+    p_a2.runs[0].font.color.rgb = RGBColor(15, 23, 42)
 
-    tbl_mem.rows[2].cells[0].paragraphs[0].add_run("2")
-    tbl_mem.rows[2].cells[1].paragraphs[0].add_run("นายสรวิชญ์ มีมาก")
-    tbl_mem.rows[2].cells[2].paragraphs[0].add_run("67332110275-8")
+    p_id2 = add_p("รหัสนักศึกษา 67332110275-8", align=WD_ALIGN_PARAGRAPH.CENTER, space_before=0, space_after=0)
+    p_id2.runs[0].font.size = Pt(16)
+    p_id2.runs[0].font.color.rgb = RGBColor(15, 23, 42)
 
-    style_table(tbl_mem, [Inches(1.0), Inches(3.2), Inches(2.3)], 
-                [WD_ALIGN_PARAGRAPH.CENTER, WD_ALIGN_PARAGRAPH.LEFT, WD_ALIGN_PARAGRAPH.CENTER], header_bg="1E3A8A")
+    # ข้อมูลสถานศึกษาและหลักสูตรส่วนล่าง (ตามรูปแบบเป๊ะๆ จากรูปตัวอย่าง)
+    p_b1 = add_p("โครงงานนี้เป็นส่วนหนึ่งของการศึกษารายวิชา [31-407-102-301] ระบบฐานข้อมูล", align=WD_ALIGN_PARAGRAPH.CENTER, space_before=70, space_after=2)
+    p_b1.runs[0].font.size = Pt(14)
+    p_b1.runs[0].font.color.rgb = RGBColor(30, 41, 59)
 
-    p_inst = add_p("เสนอ\nอาจารย์ผู้สอนประจำรายวิชา Database Systems / Database Mini Project\n\nโครงงานนี้เป็นส่วนหนึ่งของการศึกษาตามหลักสูตรวิศวกรรมศาสตรบัณฑิต\nสาขาวิชาวิศวกรรมคอมพิวเตอร์ คณะวิศวกรรมศาสตร์\nมหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน วิทยาเขตขอนแก่น\nภาคการศึกษาที่ 1 ปีการศึกษา 2569",
-                   align=WD_ALIGN_PARAGRAPH.CENTER, space_before=35, space_after=0)
-    p_inst.runs[0].font.size = Pt(13.5)
-    p_inst.runs[0].font.color.rgb = RGBColor(51, 65, 85)
+    p_b2 = add_p("สาขาวิชาวิศวกรรมคอมพิวเตอร์ คณะวิศวกรรมศาสตร์", align=WD_ALIGN_PARAGRAPH.CENTER, space_before=0, space_after=2)
+    p_b2.runs[0].font.size = Pt(14)
+    p_b2.runs[0].font.color.rgb = RGBColor(30, 41, 59)
+
+    p_b3 = add_p("มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน วิทยาเขตขอนแก่น พ.ศ. 2569", align=WD_ALIGN_PARAGRAPH.CENTER, space_before=0, space_after=2)
+    p_b3.runs[0].font.size = Pt(14)
+    p_b3.runs[0].font.color.rgb = RGBColor(30, 41, 59)
+
+    p_b4 = add_p("ลิขสิทธิ์ของคณะวิศวกรรมศาสตร์ มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน", align=WD_ALIGN_PARAGRAPH.CENTER, space_before=0, space_after=0)
+    p_b4.runs[0].font.size = Pt(14)
+    p_b4.runs[0].font.color.rgb = RGBColor(30, 41, 59)
 
     doc.add_page_break()
 
     # =========================================================================
-    # 2. ข้อมูลกลุ่มและใบงาน (GROUP & ASSIGNMENT SUMMARY - PAGE 1 OF PDF)
+    # 2. ข้อมูลกลุ่มและใบงาน (GROUP & ASSIGNMENT SUMMARY)
     # =========================================================================
     add_h1("ใบงาน Mini Project Database ร้านขาย E Book (สรุปข้อมูลกลุ่ม)")
     add_p("โครงงานกลุ่มละ 2 คน สำหรับประยุกต์ใช้การออกแบบและพัฒนาฐานข้อมูล พัฒนาระบบร้านขาย E Book ที่ลูกค้าค้นหา เลือกซื้อ ชำระเงินแบบจำลอง และรับลิงก์ดาวน์โหลดได้ พร้อมส่วนบริหารจัดการร้านและรายงานวิเคราะห์จากข้อมูลในระบบจริง")
@@ -320,64 +419,71 @@ def create_report():
     doc.add_page_break()
 
     # =========================================================================
-    # 3. สารบัญ (TABLE OF CONTENTS)
+    # 3. สารบัญ (TABLE OF CONTENTS) - ปรับปรุงหัวข้อและเลขหน้าให้ตรงกับเนื้อหาจริง 100%
     # =========================================================================
     add_h1("สารบัญ (Table of Contents)")
     tbl_toc = doc.add_table(rows=1, cols=2)
     tbl_toc.rows[0].cells[0].paragraphs[0].add_run("ลำดับบท / หัวข้อรายงาน")
     tbl_toc.rows[0].cells[1].paragraphs[0].add_run("หน้า")
 
+    # รายการหัวข้อตรงตามเนื้อหาในไฟล์ doc.x ครบถ้วนทุกหัวข้อ
     toc_items = [
         ("บทสรุปผู้บริหาร (Executive Summary)", "i"),
-        ("บทที่ 1: บทนำและวัตถุประสงค์ของโครงงาน", "1"),
-        ("  1.1 ที่มาและความสำคัญของปัญหา", "1"),
-        ("  1.2 วัตถุประสงค์ของโครงงาน (สอดคล้องตามใบงาน)", "2"),
-        ("  1.3 ขอบเขตของระบบ (System Scope: หน้าร้าน หลังบ้าน และความปลอดภัย)", "2"),
-        ("  1.4 ขอบเขตที่ไม่บังคับ (Non-mandatory Scope)", "4"),
+        ("บทที่ 1: บทนำและขอบเขตโครงงาน (Introduction & Scope)", "1"),
+        ("  1.1 ที่มาและความสำคัญของปัญหา (Problem Statement)", "1"),
+        ("  1.2 วัตถุประสงค์ของโครงงาน (Project Objectives)", "1"),
+        ("  1.3 ขอบเขตของระบบ (System Scope)", "2"),
+        ("    1.3.1 ขอบเขตส่วนหน้าร้านสำหรับลูกค้า (Customer Portal)", "2"),
+        ("    1.3.2 เงื่อนไขการส่งสินค้าและความปลอดภัยของเนื้อหาดิจิทัล", "2"),
+        ("    1.3.3 ขอบเขตส่วนระบบบริหารจัดการร้านค้าหลังบ้าน (Admin Backoffice)", "3"),
+        ("  1.4 ขอบเขตที่ไม่บังคับ (Out of Scope - สอดคล้องตามข้อ 7 ของใบงาน)", "3"),
         ("  1.5 สถาปัตยกรรมและเทคโนโลยีที่ใช้พัฒนา (Technology Stack)", "4"),
-        ("บทที่ 2: การวิเคราะห์และออกแบบฐานข้อมูล (Database Analysis & Design)", "5"),
-        ("  2.1 ผังความสัมพันธ์ข้อมูล (Entity-Relationship Diagram: ERD) และ Cardinality", "5"),
-        ("  2.2 ทฤษฎีการปรับรูปบรรทัดฐาน (Database Normalization to 3NF)", "7"),
+        ("บทที่ 2: การวิเคราะห์และออกแบบฐานข้อมูล (Database Analysis & Design)", "6"),
+        ("  2.1 โครงสร้างผังความสัมพันธ์ข้อมูล (Entity-Relationship Diagram: ERD)", "6"),
+        ("    2.1.1 สรุปคำอธิบายความสัมพันธ์และภาระงาน (Cardinality Rules ทั้ง 9 ตาราง)", "7"),
+        ("  2.2 ทฤษฎีการปรับรูปบรรทัดฐานฐานข้อมูล (Database Normalization to 3NF)", "7"),
         ("  2.3 พจนานุกรมข้อมูลฉบับสมบูรณ์ 9 ตาราง (Data Dictionary)", "9"),
-        ("บทที่ 3: การสร้างฐานข้อมูลและข้อกำหนดบูรณภาพข้อมูล (Implementation & Constraints)", "14"),
-        ("  3.1 DDL Scripts และการสร้างตารางบน PostgreSQL (Neon Cloud)", "14"),
-        ("  3.2 ข้อกำหนดบูรณภาพข้อมูล (Integrity Constraints & Referential Actions)", "16"),
-        ("  3.3 ข้อมูลตัวอย่างทดสอบระบบจริงในฐานข้อมูล (Seed Data มากกว่า 30 คำสั่งซื้อ)", "17"),
-        ("บทที่ 4: รายงานวิเคราะห์ข้อมูลเชิงลึกจากฐานข้อมูลจริง 4 ด้าน (Analytics Reports)", "18"),
-        ("  4.1 รายงานที่ 1: ยอดขายตามช่วงเวลา (Sales Over Time by Date)", "18"),
+        ("บทที่ 3: การสร้างฐานข้อมูลและข้อกำหนดบูรณภาพข้อมูล (Implementation & Constraints)", "15"),
+        ("  3.1 คำสั่ง Data Definition Language (DDL) บน PostgreSQL", "15"),
+        ("  3.2 ข้อกำหนดบูรณภาพข้อมูล (Integrity Constraints & Referential Integrity)", "17"),
+        ("  3.3 ข้อมูลตัวอย่างทดสอบระบบจริงในฐานข้อมูล (Seed Data)", "17"),
+        ("บทที่ 4: รายงานวิเคราะห์ข้อมูลเชิงลึกจากฐานข้อมูลจริง 4 ด้าน (Analytics Reports)", "19"),
+        ("  4.1 รายงานที่ 1: ยอดขายตามช่วงเวลา (Sales Over Time by Date)", "19"),
         ("  4.2 รายงานที่ 2: E-Book ขายดีที่สุด 5 อันดับแรก (Top-Selling Books)", "20"),
-        ("  4.3 รายงานที่ 3: ยอดขายตามหมวดหมู่หนังสือ (Sales by Category)", "22"),
+        ("  4.3 รายงานที่ 3: สรุปยอดขายตามหมวดหมู่หนังสือ (Sales by Category)", "22"),
         ("  4.4 รายงานที่ 4: พฤติกรรมลูกค้าและยอดซื้อสะสม (Customer Lifetime Spending)", "24"),
-        ("บทที่ 5: การพัฒนาเว็บแอปพลิเคชันและการควบคุมความปลอดภัย (Application & Security)", "26"),
-        ("  5.1 การยืนยันตัวตนและวงจรตะกร้าสินค้า (Authentication & Cart Lifecycle)", "26"),
-        ("  5.2 กระบวนการสั่งซื้อ ชำระเงินจำลอง และ Database Transaction (ACID)", "27"),
-        ("  5.3 ระบบความปลอดภัยการดาวน์โหลดไฟล์ดิจิทัล (Digital Asset Access Control)", "28"),
-        ("  5.4 ระบบควบคุมสิทธิ์ผู้ดูแลระบบ (Role-Based Access Control: RBAC & Route Guard)", "29"),
-        ("  5.5 ระบบบริหารหลังบ้าน และการส่งออกรายงาน CSV มาตรฐานภาษาไทย (UTF-8 BOM)", "30"),
-        ("บทที่ 6: การทดสอบระบบและการประกันคุณภาพข้อมูล (Testing & Quality Assurance)", "31"),
-        ("  ตารางบันทึกผลการทดสอบระบบ 8 กรณีตามเกณฑ์ใบงานข้อ 6 (TC-01 - TC-08)", "31"),
-        ("บทที่ 7: ขั้นตอนดำเนินงานและการทำงานเป็นกลุ่ม (Workflow & Collaboration)", "33"),
-        ("  7.1 ขั้นตอนดำเนินงาน 6 ระยะ (วิเคราะห์, ออกแบบ, พัฒนา, ปรับปรุง, รายงาน, นำเสนอ)", "33"),
-        ("  7.2 การแบ่งหน้าที่การทำงานเป็นกลุ่ม (สุรวัจน์ ชลเรืองทรัพย์ & สรวิชญ์ มีมาก)", "34"),
-        ("  7.3 รายการสิ่งที่ต้องส่ง (Submission Deliverables Checklist)", "35"),
-        ("บทที่ 8: การประยุกต์ใช้ปัญญาประดิษฐ์อย่างรับผิดชอบ (Responsible AI Usage Log)", "36"),
-        ("  8.1 กรอบแนวทางการใช้งาน AI (อนุญาต, ต้องปฏิบัติ, ห้ามทำ)", "36"),
-        ("  8.2 บันทึกการใช้งาน AI ในการพัฒนา (AI Prompt & Usage Log)", "37"),
-        ("  8.3 ข้อเสนอแนะของ AI ที่กลุ่มตัดสินใจปฏิเสธตามหลักวิศวกรรม (Rejected AI Proposals)", "38"),
-        ("  8.4 การคำนึงถึงความเป็นส่วนตัวของข้อมูลตามกฎหมาย (PDPA Consideration)", "39"),
-        ("บทที่ 9: เกณฑ์การประเมินตนเองและสรุปผลโครงงาน (Self-Assessment & Conclusion)", "40"),
-        ("  9.1 ตารางประเมินผลการดำเนินงานเทียบเกณฑ์ 100 คะแนนเต็ม", "40"),
-        ("  9.2 สรุปผลสัมฤทธิ์และข้อเสนอแนะในการพัฒนาต่อยอด", "41"),
-        ("ภาคผนวก (Appendices)", "42"),
-        ("  ภาคผนวก ก: รายการตรวจสอบความพร้อมก่อนส่งงาน (Checklist) และใบลงนามรับรอง", "42"),
-        ("  ภาคผนวก ข: แบบฟอร์มบันทึกการประเมินของผู้สอน (Evaluation Form)", "43"),
-        ("  ภาคผนวก ค: ข้อมูลบัญชีผู้ใช้สำหรับทดสอบ และวิธีเปิดใช้งานระบบ", "44")
+        ("บทที่ 5: การพัฒนาเว็บแอปพลิเคชันและการควบคุมความปลอดภัย (Application Flow & Security)", "26"),
+        ("  5.1 การยืนยันตัวตนและวงจรชีวิตของตะกร้าสินค้า (Authentication & Cart Lifecycle)", "26"),
+        ("  5.2 กระบวนการสั่งซื้อ ชำระเงินจำลอง และ Database Transaction (BEGIN / COMMIT)", "26"),
+        ("  5.3 ระบบความปลอดภัยการดาวน์โหลดไฟล์ดิจิทัล (Digital Asset Access Control)", "27"),
+        ("  5.4 ระบบควบคุมสิทธิ์ผู้ดูแลระบบ (Role-Based Access Control: RBAC & Route Guard)", "28"),
+        ("  5.5 ระบบบริหารหลังบ้าน และการส่งออกรายงาน CSV มาตรฐานภาษาไทย", "28"),
+        ("บทที่ 6: การทดสอบระบบและการประกันคุณภาพข้อมูล (Testing & Quality Assurance)", "29"),
+        ("  ตารางบันทึกผลการทดสอบระบบ 8 กรณีตามเกณฑ์ใบงานข้อ 6 (TC-01 - TC-08)", "29"),
+        ("บทที่ 7: ขั้นตอนดำเนินงานและการทำงานเป็นกลุ่ม (Workflow & Collaboration)", "31"),
+        ("  7.1 ขั้นตอนดำเนินงาน 6 ระยะ (Project Phases - สอดคล้องตามข้อ 8 ของใบงาน)", "31"),
+        ("  7.2 การทำงานเป็นกลุ่มและบทบาทความรับผิดชอบ (สอดคล้องตามข้อ 9 ของใบงาน)", "31"),
+        ("  7.3 รายการสิ่งที่ต้องส่ง (Deliverables Checklist - สอดคล้องตามข้อ 10 ของใบงาน)", "32"),
+        ("บทที่ 8: การประยุกต์ใช้ปัญญาประดิษฐ์อย่างรับผิดชอบ (Responsible AI Usage Log)", "34"),
+        ("  8.1 กรอบแนวทางการใช้งาน AI (สอดคล้องตามข้อ 12 ของใบงาน)", "34"),
+        ("  8.2 ตารางบันทึกการใช้ AI ของกลุ่ม (AI Usage Log)", "34"),
+        ("  8.3 ข้อเสนอแนะของ AI ที่ผู้พัฒนาตัดสินใจปฏิเสธตามหลักวิศวกรรม (Rejected Proposals)", "35"),
+        ("  8.4 การคำนึงถึงความเป็นส่วนตัวและการคุ้มครองข้อมูลส่วนบุคคล (PDPA)", "35"),
+        ("บทที่ 9: เกณฑ์การประเมินตนเองและสรุปผลโครงงาน (Self-Assessment & Conclusion)", "36"),
+        ("  9.1 ตารางประเมินผลการดำเนินงานเทียบเกณฑ์ 100 คะแนนเต็ม (สอดคล้องตามข้อ 11)", "36"),
+        ("  9.2 สรุปผลสัมฤทธิ์ของโครงงาน", "37"),
+        ("  9.3 ข้อเสนอแนะในการพัฒนาต่อยอดระบบในอนาคต", "37"),
+        ("ภาคผนวก (Appendices)", "38"),
+        ("  ภาคผนวก ก: รายการตรวจสอบความพร้อมก่อนส่งงาน (Checklist - สอดคล้องตามข้อ 13)", "38"),
+        ("  การลงชื่อรับรอง (Certification of Authorship)", "38"),
+        ("  ภาคผนวก ข: แบบฟอร์มบันทึกการประเมินของผู้สอน (สอดคล้องตามท้ายใบงาน)", "38"),
+        ("  ภาคผนวก ค: คู่มือการติดตั้งและข้อมูลบัญชีผู้ใช้สำหรับทดสอบ (Test Accounts)", "39")
     ]
     for title, pg in toc_items:
         row = tbl_toc.add_row()
         row.cells[0].paragraphs[0].add_run(title)
         row.cells[1].paragraphs[0].add_run(pg)
-    style_table(tbl_toc, [Inches(5.7), Inches(0.8)], [WD_ALIGN_PARAGRAPH.LEFT, WD_ALIGN_PARAGRAPH.CENTER], header_bg="1E3A8A")
+    style_toc_table(tbl_toc, [Inches(5.6), Inches(0.9)])
 
     doc.add_page_break()
 
@@ -396,9 +502,29 @@ def create_report():
     add_bullet("รายงานวิเคราะห์ธุรกิจ 4 ด้าน: พัฒนา Aggregate Query ด้วยคำสั่ง SQL สดผ่านหน้าจอ /reports ครอบคลุมยอดขายตามช่วงเวลา, 5 อันดับหนังสือขายดี, สรุปยอดขายตามหมวดหมู่, และยอดซื้อสะสมของลูกค้า พร้อมปุ่ม Export CSV ที่ฝังรหัส UTF-8 BOM ทำให้เปิดอ่านภาษาไทยใน Microsoft Excel ได้อย่างถูกต้อง ไม่เกิดปัญหาภาษาต่างดาว", bold_prefix="5. ")
     add_bullet("การประยุกต์ใช้ AI อย่างรับผิดชอบ: บันทึกประวัติการใช้ AI ครบถ้วน พร้อมระบุเหตุผลทางวิศวกรรม 3 ประเด็นที่ผู้พัฒนาตัดสินใจปฏิเสธคำแนะนำของ AI เพื่อคงไว้ซึ่งความปลอดภัยและความถูกต้องของฐานข้อมูล", bold_prefix="6. ")
 
-    doc.add_page_break()
+    # Section Break สำหรับส่วนเนื้อหาหลัก เริ่มนับหน้า 1 ตั้งแต่บทที่ 1
+    body_sec = doc.add_section(WD_SECTION_START.NEW_PAGE)
+    body_sec.top_margin = Inches(1.0)
+    body_sec.bottom_margin = Inches(1.0)
+    body_sec.left_margin = Inches(1.0)
+    body_sec.right_margin = Inches(1.0)
+    body_sec.different_first_page_header_footer = False
+    body_sec.header.is_linked_to_previous = False
+    body_sec.footer.is_linked_to_previous = False
 
-    # =========================================================================
+    # Restart page numbering at 1
+    sectPr = body_sec._sectPr
+    pgNumType = parse_xml(r'<w:pgNumType %s w:start="1"/>' % nsdecls('w'))
+    sectPr.append(pgNumType)
+
+    # Footer for body section
+    f_body = body_sec.footer
+    f_body_p = f_body.paragraphs[0]
+    f_body_p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    f_body_run = f_body_p.add_run("รายวิชา Database Mini Project - E-Book Store Management System\t\tหน้า ")
+    set_font(f_body_run, font_name="TH Sarabun New", size_pt=9, color_rgb=RGBColor(140, 140, 140))
+    add_page_number(f_body_p.add_run())
+
     # 5. บทที่ 1: บทนำและวัตถุประสงค์ของโครงงาน
     # =========================================================================
     add_h1("บทที่ 1: บทนำและขอบเขตโครงงาน (Introduction & Scope)")
@@ -1365,22 +1491,17 @@ router.use(adminGuard);"""
 
     style_table(tbl_acc, [Inches(1.3), Inches(1.3), Inches(1.3), Inches(2.6)], [WD_ALIGN_PARAGRAPH.CENTER, WD_ALIGN_PARAGRAPH.CENTER, WD_ALIGN_PARAGRAPH.CENTER, WD_ALIGN_PARAGRAPH.LEFT], header_bg="1E3A8A")
 
-    # Save to available docx file
-    output_names = ["PROJECT_Report.docx", "PROJECT_Report_Updated.docx", "PROJECT_Report_Final.docx", "PROJECT_Report_Latest.docx"]
-    saved_path = None
-    for out in output_names:
-        try:
-            doc.save(out)
-            saved_path = out
-            print(f"Document successfully created and saved to {out}!")
-            break
-        except PermissionError:
-            continue
-    if not saved_path:
-        import time
-        ts_name = f"PROJECT_Report_{int(time.time())}.docx"
-        doc.save(ts_name)
-        print(f"Document saved to {ts_name}!")
+
+
+
+
+    # Save to final docx file
+    output_path = "PROJECT_Report_Final.docx"
+    try:
+        doc.save(output_path)
+        print(f"Document successfully created and saved to {output_path}!")
+    except Exception as e:
+        print(f"Error saving to {output_path}: {e}")
 
 if __name__ == "__main__":
     create_report()
