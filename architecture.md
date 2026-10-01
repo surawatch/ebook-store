@@ -93,6 +93,95 @@ graph TD
 
 ---
 
+### 1.4 แผนภาพคลาสของระบบ (Class Diagram)
+แสดงโครงสร้างเชิงอ็อบเจกต์และเอนทิตีหลักของระบบ E-Book Store พร้อมความสัมพันธ์
+
+```mermaid
+classDiagram
+    class User {
+        +int user_id
+        +int role_id
+        +string username
+        +string email
+        +string password_hash
+        +string full_name
+        +login(credentials)
+        +register(userData)
+    }
+
+    class Role {
+        +int role_id
+        +string role_name
+    }
+
+    class EBook {
+        +int ebook_id
+        +string title
+        +int author_id
+        +int category_id
+        +decimal price
+        +string cover_image_url
+        +string file_download_url
+        +bool is_active
+        +getDetails()
+    }
+
+    class Category {
+        +int category_id
+        +string category_name
+        +string description
+    }
+
+    class Cart {
+        +int cart_id
+        +int user_id
+        +addItem(ebookId, qty)
+        +removeItem(ebookId)
+        +clear()
+    }
+
+    class Order {
+        +int order_id
+        +int user_id
+        +decimal total_amount
+        +string order_status
+        +timestamp created_at
+        +checkout()
+        +verifyAccess(requesterId)
+    }
+
+    class OrderItem {
+        +int order_item_id
+        +int order_id
+        +int ebook_id
+        +decimal price_at_purchase
+        +int quantity
+    }
+
+    class AIService {
+        +buildPromptV2(query, catalog) string
+        +ruleBasedFallback(query, catalog) object
+        +recommendBooks(query, options) Promise
+        +validateZeroHallucination(result, catalog) bool
+    }
+
+    class AccessControl {
+        +getDownloadLinks(order, requesterId) array
+        +hasAccess(order, requesterId) bool
+    }
+
+    User "1" --> "1" Role : has
+    User "1" --> "1" Cart : owns
+    User "1" --> "*" Order : places
+    Order "1" --> "*" OrderItem : contains
+    OrderItem "*" --> "1" EBook : references
+    EBook "*" --> "1" Category : categorized under
+    Order ..> AccessControl : uses
+    AIService ..> EBook : recommends
+```
+
+---
+
 ## 2. แผนผังการตัดสินใจเลือกใช้ AI vs Classical SE (Decision Tree)
 
 ตามหลักการในบทที่ 6 §6.3 และบทที่ 14 §14.4 ซอฟต์แวร์วิศวกรรมที่ดีต้องไม่ใช้ LLM กับทุกปัญหา การตัดสินใจในโครงการ E-Book Store เป็นไปตามแผนผังดังนี้:
@@ -117,7 +206,7 @@ graph TD
 
 ---
 
-## 3. ยุทธศาสตร์การรับมือความล้มเหลว (Graceful Fallback Strategy)
+## 3. แผนภาพลำดับการทำงาน (Sequence Diagram - Graceful Fallback Strategy)
 
 เมื่อระบบภายนอก (LLM Provider) เกิดปัญหา เช่น เครือข่ายล่ม, Rate Limit เกิน, หรือ API Key ขัดข้อง ระบบ E-Book Store จะดำเนินตาม **3-Stage Fallback Chain**:
 

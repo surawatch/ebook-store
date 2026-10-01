@@ -7,9 +7,10 @@
 # โครงงานพัฒนาระบบร้านขายหนังสือและอีบุ๊กออนไลน์
 ## (E-Book Store Online Management System with AI Bookstore Assistant)
 
-[![Node.js CI](https://github.com/surawatch/ebook-store/actions/workflows/ci.yml/badge.svg)](https://github.com/surawatch/ebook-store/actions/workflows/ci.yml)
+[![CI](https://github.com/surawatch/ebook-store/actions/workflows/ci.yml/badge.svg)](https://github.com/surawatch/ebook-store/actions/workflows/ci.yml)
 [![Database](https://img.shields.io/badge/PostgreSQL-Neon%20Serverless-blue.svg)](https://neon.tech/)
 [![AI-Integrated](https://img.shields.io/badge/AI-Gemini%20%2F%20Fallback%20Chain-purple.svg)](./services/aiService.js)
+[![Accessibility](https://img.shields.io/badge/WCAG%202.1-Level%20AA%20(98%2F100)-success.svg)](./docs/user-interface.md)
 [![SE-Framework](https://img.shields.io/badge/SE%20in%20AI%20Era-Capstone%20Ready-orange.svg)](https://ecp-rmuti.gitbook.io/software-engineering-in-ai-era/capstone/capstone-framework)
 
 **โครงงานบูรณาการตลอดภาคการศึกษา (Capstone Project - 20 คะแนน)**  
@@ -27,6 +28,20 @@
 
 ---
 
+## 🎯 ตารางตรวจสอบความพร้อม 5 หัวข้อหลักตามเกณฑ์ประเมิน (Self-Check Rubric)
+
+ผู้สอนและผู้ตรวจประเมินสามารถคลิกลิงก์ตรวจสอบชิ้นงานหลักครบทั้ง 5 รายการได้โดยตรง:
+
+| ข้อที่ | รายการเกณฑ์ตรวจประเมินของผู้สอน | ลิงก์ตรงไปยังชิ้นงานใน Repository (Clickable Link) | สาระสำคัญและขอบเขตชิ้นงาน | สถานะ |
+| :---: | :--- | :--- | :--- | :---: |
+| **1** | **Spec ของระบบ** | [`requirements.md`](./requirements.md) | User Stories 12 ข้อ, Acceptance Criteria (Given-When-Then), FURPS+ ครบ 5 ด้าน, 4 NFRs สำหรับ AI | 🟢 พร้อมตรวจ |
+| **2** | **Class Diagram หรือ Sequence Diagram** | [`architecture.md`](./architecture.md#14-แผนภาพคลาสของระบบ-class-diagram) *(Class Diagram)*<br>[`architecture.md`](./architecture.md#3-แผนภาพลำดับการทำงาน-sequence-diagram---graceful-fallback-strategy) *(Sequence Diagram)* | **Class Diagram** (โมเดลอ็อบเจกต์ 9 คลาส) และ **Sequence Diagram** (การทำงาน Fallback Chain 3 ขั้น) สอดคล้องตามมาตรฐาน UML | 🟢 พร้อมตรวจ |
+| **3** | **งานฝั่งผู้ใช้ (Persona, Wireframe และผลตรวจ Accessibility)** | [`docs/user-interface.md`](./docs/user-interface.md) | Personas 2 กลุ่ม (ลูกค้า & Admin), Wireframes UI Flow ครบ 7 หน้าจอพร้อมภาพหน้าจอจริง, ผลตรวจ WCAG 2.1 Level AA 10 ข้อ (Lighthouse 98%) | 🟢 พร้อมตรวจ |
+| **4** | **Test อัตโนมัติ และหน้าผลการรัน CI** | [`tests/`](./tests) *(Automated Tests โค้ดทดสอบ)*<br>[GitHub Actions CI Runs (หน้าผลการรันจริง)](https://github.com/surawatch/ebook-store/actions) | ชุดทดสอบ Unit Tests Node.js (10 Tests ผ่าน 100%), Python Unittest (3 Tests ผ่าน 100%), CI Workflow บน GitHub Actions แสดงผล Green Checkmark | 🟢 พร้อมตรวจ |
+| **5** | **บันทึกการใช้ AI** | [`AI_USE_LOG.md`](./AI_USE_LOG.md) | บันทึกการใช้งาน AI ครบ 4 ช่วงพัฒนา, Trust Levels 1-3, Prompts จริง, และตาราง Rejected AI Proposals 3 ประเด็น | 🟢 พร้อมตรวจ |
+
+---
+
 ## 🗺️ 1. แผนที่ระบุตำแหน่งชิ้นงานทั้งหมดในโครงงาน (Artifact Location Map)
 
 ตารางด้านล่างนี้รวบรวมชิ้นงานและเอกสารสำคัญทั้งหมดของโครงงาน เพื่อความสะดวกในการตรวจประเมินตามกรอบ [Capstone Framework](https://ecp-rmuti.gitbook.io/software-engineering-in-ai-era/capstone/capstone-framework):
@@ -34,12 +49,13 @@
 | หมวดหมู่ของชิ้นงาน | รายการเอกสาร / ชิ้นงาน | ตำแหน่งไฟล์ใน Repository (Clickable Link) | วัตถุประสงค์และสาระสำคัญ |
 | :--- | :--- | :--- | :--- |
 | **ภาพรวมโครงการ** | **README** | [`README.md`](./README.md) | ที่มาของปัญหา, Stakeholders, ขอบเขต In/Out, สถาปัตยกรรม, และคำสั่งติดตั้งระบบ |
-| **ช่วงที่ 1: ความต้องการ** | **Requirements Spec** | [`requirements.md`](./requirements.md) | User Stories 12 ข้อ, Acceptance Criteria (Given-When-Then), FURPS+, 4 NFRs สำหรับ AI |
+| **ช่วงที่ 1: ความต้องการ** | **Requirements Spec (Spec ของระบบ)** | [`requirements.md`](./requirements.md) | User Stories 12 ข้อ, Acceptance Criteria (Given-When-Then), FURPS+, 4 NFRs สำหรับ AI |
+|  | **งานฝั่งผู้ใช้ (Persona, Wireframe, A11y)** | [`docs/user-interface.md`](./docs/user-interface.md) | Personas 2 มิติ, ผัง Wireframe 7 หน้าจอ, และรายงานประเมินความสามารถในการเข้าถึง WCAG 2.1 AA |
 |  | **Tech Stack Decision** | [`tech-stack.md`](./tech-stack.md) | ชุดเทคโนโลยีที่เลือก (Node.js, Postgres Neon, Gemini) และรายการทางเลือกที่พิจารณาแล้วปฏิเสธ |
 |  | **Team Charter** | [`team-charter.md`](./team-charter.md) | บทบาทสมาชิก, ช่องทางสื่อสาร, ข้อตกลงการทำงาน, Definition of Done, และนโยบายการใช้ AI |
-|  | **AI Use Disclosure** | [`AI_USE_LOG.md`](./AI_USE_LOG.md) | บันทึกการใช้งาน AI ทุกช่วง, Trust Levels, ข้อเสนอที่มนุษย์ปฏิเสธ/แก้ไข (Rejected Proposals) |
+|  | **AI Use Disclosure (บันทึกการใช้ AI)** | [`AI_USE_LOG.md`](./AI_USE_LOG.md) | บันทึกการใช้งาน AI ทุกช่วง, Trust Levels, ข้อเสนอที่มนุษย์ปฏิเสธ/แก้ไข (Rejected Proposals) |
 |  | **PR Standards** | [`.github/PULL_REQUEST_TEMPLATE.md`](./.github/PULL_REQUEST_TEMPLATE.md) | แบบฟอร์มมาตรฐานสำหรับ Pull Request ที่บังคับระบุ AI Use Note และ Three-Layer Review |
-| **ช่วงที่ 2: สถาปัตยกรรม** | **Architecture Model** | [`architecture.md`](./architecture.md) | C4 Model (Context, Container, Component), Decision Tree (เมื่อใดใช้ AI vs Rule), Fallback Strategy |
+| **ช่วงที่ 2: สถาปัตยกรรม** | **Architecture Model (Class & Sequence Diagrams)** | [`architecture.md`](./architecture.md) | C4 Model, Class Diagram, Sequence Diagram (Fallback Strategy), และ Decision Tree |
 |  | **ADR 001** | [`adr/ADR-001-backend-framework.md`](./adr/ADR-001-backend-framework.md) | บันทึกการตัดสินใจเลือกใช้ Node.js และ Express.js |
 |  | **ADR 002** | [`adr/ADR-002-database-cloud.md`](./adr/ADR-002-database-cloud.md) | บันทึกการตัดสินใจเลือกใช้ PostgreSQL บน Neon Cloud Serverless |
 |  | **ADR 003** | [`adr/ADR-003-ai-book-recommendation-assistant.md`](./adr/ADR-003-ai-book-recommendation-assistant.md) | บันทึกการตัดสินใจเลือกใช้ Hybrid Gemini API + Local Fallback Rule Engine |
@@ -51,7 +67,7 @@
 |  | **Python Logic** | [`access.py`](./access.py) | โค้ด Python สำหรับตรวจสิทธิ์ตามใบความรู้เสริม Capstone ร้านขายหนังสือดิจิทัล |
 |  | **Unit Tests (Node.js)** | [`tests/download_access.test.js`](./tests/download_access.test.js)<br>[`tests/ai_service.test.js`](./tests/ai_service.test.js) | ชุดทดสอบ Unit Tests ด้วย Node.js Built-in Runner (TC-01 ถึง TC-05 และ TC-AI-01 ถึง 05) ผ่าน 100% |
 |  | **Unit Tests (Python)** | [`tests/test_download_access.py`](./tests/test_download_access.py) | ชุดทดสอบ Python ด้วย unittest / pytest ตามคู่มือวิชา ผ่าน 100% |
-|  | **CI Automation (GitHub Actions)** | [`.github/workflows/ci.yml`](./.github/workflows/ci.yml) | เวิร์กโฟลว์รัน CI อัตโนมัติ ทดสอบทั้ง Node.js และ Python ทุกครั้งที่ Push / PR |
+|  | **CI Automation (GitHub Actions)** | [`.github/workflows/ci.yml`](./.github/workflows/ci.yml)<br>[หน้าผลการรัน CI บน GitHub](https://github.com/surawatch/ebook-store/actions) | เวิร์กโฟลว์รัน CI อัตโนมัติ ทดสอบทั้ง Node.js และ Python ทุกครั้งที่ Push / PR พร้อมหน้าผลการรันจริง |
 |  | **Golden Dataset** | [`evals/golden_dataset.json`](./evals/golden_dataset.json) | ชุดทดสอบประเมินผล AI 25 ข้อ (Happy Path 15 ข้อ, Edge Cases 5 ข้อ, Adversarial Injections 5 ข้อ) |
 |  | **AI Eval Runner** | [`evals/eval_runner.js`](./evals/eval_runner.js) | สคริปต์รันประเมินผล AI อัตโนมัติ เปรียบเทียบ Prompt v1 vs Prompt v2 |
 |  | **Eval Results Report** | [`evals/eval_results.md`](./evals/eval_results.md) | รายงานผลการประเมิน AI: ความแม่นยำ 84.0%, Zero Hallucination 100%, ป้องกัน Injection 100% |
@@ -86,7 +102,7 @@
    * **Zero-Hallucination Filter**: ตัวกรองรหัสหนังสือในระดับโค้ดที่ตรวจสอบกับแคตตาล็อกจริง ป้องกันไม่ให้ AI กุชื่อหนังสือหรือข้อมูลเท็จ
    * **AI Regression Evaluation Suite**: ชุดประเมินผลอัตโนมัติจำนวน 25 ข้อ พร้อมรายงานเปรียบเทียบ Prompt v1 vs v2
    * **Observability Logging**: บันทึกและคำนวณค่า Latency (p50, p95, p99), Error Rate, Token Usage, และต้นทุนต่อคำขออย่างเป็นระบบ
-4. **Automated Testing & CI**:
+4. **Automated Testing & CI Pipeline**:
    * ติดตั้ง **GitHub Actions CI Pipeline** (`.github/workflows/ci.yml`) ทดสอบ Unit Tests อัตโนมัติทุกครั้งที่โค้ดถูก Push สู่ Repository
 
 ---
@@ -101,6 +117,7 @@
   * ผลลัพธ์: **ผ่านครบ 3 ข้อ (100% Pass Rate)**
 * **Continuous Integration (GitHub Actions)**:
   * เวิร์กโฟลว์: รันอัตโนมัติผ่าน [`.github/workflows/ci.yml`](./.github/workflows/ci.yml)
+  * หน้าผลการรัน: ตรวจสอบสถานะจริงได้ที่ [GitHub Actions Runs](https://github.com/surawatch/ebook-store/actions)
 * **AI Evals Suite (Golden Dataset 25 ข้อ)**:
   * ความแม่นยำ (Accuracy): **84.0%** (21/25 ข้อ)
   * อัตราการเกิด Hallucination: **0 เล่ม (0% Hallucination Rate)**

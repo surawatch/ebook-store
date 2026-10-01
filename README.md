@@ -100,6 +100,7 @@ npm run eval
 | :--- | :--- | :--- |
 | **ภาพรวมการส่งงาน** | [`PROJECT.md`](./PROJECT.md) | **สารบัญหลักของ Capstone ระบุที่ตั้งของชิ้นงานทุกชิ้น** |
 | **Requirements** | [`requirements.md`](./requirements.md) | User Stories 12 ข้อ, Given-When-Then, FURPS+, 4 NFRs |
+| **UI/UX & A11y** | [`docs/user-interface.md`](./docs/user-interface.md) | Persona ผู้ใช้ 2 กลุ่ม, Wireframes 7 หน้าจอ, และผลประเมิน Accessibility WCAG 2.1 AA |
 | **Tech Stack** | [`tech-stack.md`](./tech-stack.md) | เหตุผลการเลือกเทคโนโลยีและรายการ Alternatives ที่ไม่เลือก |
 | **Team Charter** | [`team-charter.md`](./team-charter.md) | บทบาทสมาชิก ข้อตกลง และ AI Use Policy ของทีม |
 | **AI Disclosure** | [`AI_USE_LOG.md`](./AI_USE_LOG.md) | บันทึกการใช้งาน AI, Trust Levels, และ Override Decisions |
