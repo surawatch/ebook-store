@@ -510,7 +510,7 @@ CREATE TABLE order_items (
 
 # บทที่ 4: รายงานวิเคราะห์ข้อมูลเชิงลึกจากฐานข้อมูลจริง 4 ด้าน
 
-คำสั่งสืบค้น SQL ทั้ง 4 ด้าน พัฒนาขึ้นในไฟล์ [`routes/reports.js`](file:///c:/Users/Lenovo/ebook-store/routes/reports.js) ดึงข้อมูลจริงจากตาราง `orders`, `order_items`, `ebooks`, `authors`, `categories`, และ `users`:
+คำสั่งสืบค้น SQL ทั้ง 4 ด้าน พัฒนาขึ้นในไฟล์ [`routes/reports.js`](./routes/reports.js) ดึงข้อมูลจริงจากตาราง `orders`, `order_items`, `ebooks`, `authors`, `categories`, และ `users`:
 
 ---
 
@@ -656,12 +656,12 @@ LIMIT 5;
 # บทที่ 5: การพัฒนาเว็บแอปพลิเคชันและการควบคุมสิทธิ์การเข้าถึง
 
 ## 5.1 การยืนยันตัวตนและวงจรตะกร้าสินค้า (Authentication & Cart Lifecycle)
-ในไฟล์ [`routes/auth.js`](file:///c:/Users/Lenovo/ebook-store/routes/auth.js):
+ในไฟล์ [`routes/auth.js`](./routes/auth.js):
 - **ระบบสมาชิก**: เมื่อผู้ใช้กรอกแบบฟอร์มสมัครสมาชิก (`/register`) ระบบจะทำคำสั่ง Insert ข้อมูลลงในตาราง `users` ด้วยสิทธิ์เริ่มต้น `role_id = 1` (customer) และสร้างแถวข้อมูลตะกร้าสินค้าลงในตาราง `carts` ประจำตัวผู้ใช้ทันที
 - **การจัดการเซสชัน**: เมื่อเข้าสู่ระบบ (`/login`) ระบบจะจัดเก็บข้อมูลลงใน Session (`req.session.user`) เพื่อใช้ระบุตัวตนและตรวจสอบสิทธิ์ในทุกคำสั่งเรียกหน้าเว็บ
 
 ## 5.2 กระบวนการสั่งซื้อ ชำระเงินจำลอง และ Database Transaction
-ในไฟล์ [`routes/shop.js`](file:///c:/Users/Lenovo/ebook-store/routes/shop.js):
+ในไฟล์ [`routes/shop.js`](./routes/shop.js):
 เมื่อลูกค้ากดปุ่ม "ยืนยันสั่งซื้อและชำระเงินจำลอง" ที่เส้นทาง `/checkout-cart` ระบบจะทำงานภายใต้กรอบ **Database Transaction** เพื่อป้องกันปัญหาข้อมูลสูญหายหรือข้อมูลค้างครึ่งทาง:
 ```javascript
 const client = await pool.connect();
@@ -723,7 +723,7 @@ try {
    ทำให้มั่นใจได้ 100% ว่าไฟล์จะไม่รั่วไหลไปยังบุคคลที่ไม่ได้รับอนุญาต
 
 ## 5.4 ระบบควบคุมสิทธิ์ผู้ดูแลระบบ (Role-Based Access Control: RBAC)
-ในไฟล์ [`routes/admin.js`](file:///c:/Users/Lenovo/ebook-store/routes/admin.js):
+ในไฟล์ [`routes/admin.js`](./routes/admin.js):
 - **UI Masking**: ผู้ใช้ทั่วไปจะไม่เห็นเมนู Dropdown `⚙️ จัดการร้าน (Admin)` บนแถบเนวิเกชันบาร์
 - **Route Guard Middleware**: ดักจับทุกคำขอที่เข้ามายังรูท `/admin/*`:
   ```javascript

@@ -1,8 +1,8 @@
 # 📚 E-Book Store Online Management System (ระบบร้านขายหนังสือและอีบุ๊กออนไลน์)
 
-[![Node.js CI](https://img.shields.io/badge/Node.js-v20+-green.svg)](https://nodejs.org/)
+[![CI](https://github.com/surawatch/ebook-store/actions/workflows/ci.yml/badge.svg)](https://github.com/surawatch/ebook-store/actions/workflows/ci.yml)
 [![Database](https://img.shields.io/badge/PostgreSQL-Neon%20Serverless-blue.svg)](https://neon.tech/)
-[![AI-Integrated](https://img.shields.io/badge/AI-Gemini%20%2F%20Fallback%20Chain-purple.svg)]()
+[![AI-Integrated](https://img.shields.io/badge/AI-Gemini%20%2F%20Fallback%20Chain-purple.svg)](./services/aiService.js)
 [![SE-Framework](https://img.shields.io/badge/SE%20in%20AI%20Era-Capstone%20Ready-orange.svg)](https://ecp-rmuti.gitbook.io/software-engineering-in-ai-era/capstone/capstone-framework)
 
 > โครงงานบูรณาการวิศวกรรมซอฟต์แวร์ยุค AI (Software Engineering in AI Era Capstone Project)  
@@ -39,7 +39,7 @@
 * **การปกป้องสินค้าดิจิทัล (Digital Asset Access Control)**: ลิงก์ดาวน์โหลดเปิดได้เฉพาะคำสั่งซื้อสถานะ `confirmed` และผู้ขอต้องเป็นเจ้าของเท่านั้น (ป้องกัน IDOR)
 * **ระบบปัญญาประดิษฐ์แนะนำหนังสือ (AI Bookstore Assistant)**: ผู้ช่วยค้นหาและแนะนำหนังสือตามความต้องการเชิงความหมาย พร้อม Graceful Fallback Chain
 * **รายงานวิเคราะห์ข้อมูล (Business Analytics)**: ยอดขายรายเดือน/ช่วงเวลา, 5 อันดับหนังสือขายดี, ยอดขายตามหมวดหมู่, ลูกค้าสะสม พร้อมปุ่ม Export CSV UTF-8 BOM
-* **การประกันคุณภาพ (Testing & AI Evals)**: Unit Test (AAA Pattern) และ AI Regression Eval Suite จำนวน 25 ชุดทดสอบ
+* **การประกันคุณภาพ (Testing & AI Evals)**: Unit Test (AAA Pattern), Python Unittest, CI Workflow และ AI Regression Eval Suite จำนวน 25 ชุดทดสอบ
 
 ### ❌ อยู่นอกขอบเขต (Out of Scope)
 * การตัดบัตรเครดิตผ่าน Payment Gateway ของธนาคารจริง (ใช้ระบบอัปโหลดสลิปจำลองและอนุมัติโดย Admin)
@@ -57,7 +57,7 @@
 * **Data Layer**: PostgreSQL บน Neon Serverless Cloud จัดเก็บข้อมูล 9 ตาราง รองรับ 3NF และ ACID Transaction
 * **AI & Fallback Layer**: Gemini / LLM Provider เชื่อมต่อด้วย Fallback Adapter เมื่อเครือข่ายขัดข้องจะสลับใช้ Category-based Rule Engine อัตโนมัติ
 
-ดูรายละเอียดแผนภาพ C4 Diagram และ Decision Tree ได้ที่ [architecture.md](file:///c:/Users/Lenovo/ebook-store/architecture.md)
+ดูรายละเอียดแผนภาพ C4 Diagram และ Decision Tree ได้ที่ [architecture.md](./architecture.md)
 
 ---
 
@@ -83,7 +83,10 @@ npm start
 # 4. รันชุดทดสอบความถูกต้อง (Unit Tests)
 npm test
 
-# 5. รันชุดประเมินผล AI (AI Evals Suite)
+# 5. รันชุดทดสอบ Python
+npm run test:py
+
+# 6. รันชุดประเมินผล AI (AI Evals Suite)
 npm run eval
 ```
 
@@ -95,21 +98,22 @@ npm run eval
 
 | หมวดหมู่ | เอกสารหลัก | รายละเอียด |
 | :--- | :--- | :--- |
-| **ภาพรวมการส่งงาน** | [`PROJECT.md`](file:///c:/Users/Lenovo/ebook-store/PROJECT.md) | **สารบัญหลักของ Capstone ระบุที่ตั้งของชิ้นงานทุกชิ้น** |
-| **Requirements** | [`requirements.md`](file:///c:/Users/Lenovo/ebook-store/requirements.md) | User Stories 12 ข้อ, Given-When-Then, FURPS+, 4 NFRs |
-| **Tech Stack** | [`tech-stack.md`](file:///c:/Users/Lenovo/ebook-store/tech-stack.md) | เหตุผลการเลือกเทคโนโลยีและรายการ Alternatives ที่ไม่เลือก |
-| **Team Charter** | [`team-charter.md`](file:///c:/Users/Lenovo/ebook-store/team-charter.md) | บทบาทสมาชิก ข้อตกลง และ AI Use Policy ของทีม |
-| **AI Disclosure** | [`AI_USE_LOG.md`](file:///c:/Users/Lenovo/ebook-store/AI_USE_LOG.md) | บันทึกการใช้งาน AI, Trust Levels, และ Override Decisions |
-| **PR Standards** | [`.github/PULL_REQUEST_TEMPLATE.md`](file:///c:/Users/Lenovo/ebook-store/.github/PULL_REQUEST_TEMPLATE.md) | แบบฟอร์ม Pull Request ที่บังคับระบุ AI Use Note |
-| **Architecture** | [`architecture.md`](file:///c:/Users/Lenovo/ebook-store/architecture.md) | C4 Model (Context/Container/Component), Decision Tree, Fallback |
-| **ADR Records** | [`adr/`](file:///c:/Users/Lenovo/ebook-store/adr) | ADR-001 ถึง ADR-004 บันทึกการตัดสินใจทางสถาปัตยกรรม |
-| **Testing** | [`tests/`](file:///c:/Users/Lenovo/ebook-store/tests) | Unit Tests ตรวจสอบสิทธิ์ Access Control และ AI Service |
-| **AI Evals** | [`evals/`](file:///c:/Users/Lenovo/ebook-store/evals) | Golden Dataset 25 ข้อ, Eval Runner, ผลลัพธ์ Prompt v1 vs v2 |
-| **Observability** | [`observability/`](file:///c:/Users/Lenovo/ebook-store/observability) | Dashboard บันทึก Latency p50/p95/p99, Cost, Sample Traces |
-| **Ethics Review** | [`docs/ethics-review.md`](file:///c:/Users/Lenovo/ebook-store/docs/ethics-review.md) | การตอบ 5 คำถามจริยธรรม, 10-Item Checklist, PDPA |
-| **Runbook** | [`docs/runbook.md`](file:///c:/Users/Lenovo/ebook-store/docs/runbook.md) | คู่มือ Incident Response สำหรับ 4 สถานการณ์ฉุกเฉิน |
-| **Code Review** | [`docs/code-review.md`](file:///c:/Users/Lenovo/ebook-store/docs/code-review.md) | Three-Layer Code Review บันทึก 5 PR สำคัญ |
-| **Database** | [`docs/scope.md`](file:///c:/Users/Lenovo/ebook-store/docs/scope.md), [`docs/erd.md`](file:///c:/Users/Lenovo/ebook-store/docs/erd.md), [`sql/`](file:///c:/Users/Lenovo/ebook-store/sql) | ขอบเขต ERD Mermaid, DDL Schema, Seed, Reports |
+| **ภาพรวมการส่งงาน** | [`PROJECT.md`](./PROJECT.md) | **สารบัญหลักของ Capstone ระบุที่ตั้งของชิ้นงานทุกชิ้น** |
+| **Requirements** | [`requirements.md`](./requirements.md) | User Stories 12 ข้อ, Given-When-Then, FURPS+, 4 NFRs |
+| **Tech Stack** | [`tech-stack.md`](./tech-stack.md) | เหตุผลการเลือกเทคโนโลยีและรายการ Alternatives ที่ไม่เลือก |
+| **Team Charter** | [`team-charter.md`](./team-charter.md) | บทบาทสมาชิก ข้อตกลง และ AI Use Policy ของทีม |
+| **AI Disclosure** | [`AI_USE_LOG.md`](./AI_USE_LOG.md) | บันทึกการใช้งาน AI, Trust Levels, และ Override Decisions |
+| **PR Standards** | [`.github/PULL_REQUEST_TEMPLATE.md`](./.github/PULL_REQUEST_TEMPLATE.md) | แบบฟอร์ม Pull Request ที่บังคับระบุ AI Use Note |
+| **Architecture** | [`architecture.md`](./architecture.md) | C4 Model (Context/Container/Component), Decision Tree, Fallback |
+| **ADR Records** | [`adr/`](./adr) | ADR-001 ถึง ADR-004 บันทึกการตัดสินใจทางสถาปัตยกรรม |
+| **Testing** | [`tests/`](./tests) | Unit Tests ตรวจสอบสิทธิ์ Access Control และ AI Service |
+| **CI Automation** | [`.github/workflows/ci.yml`](./.github/workflows/ci.yml) | GitHub Actions CI รันเทส Node.js และ Python อัตโนมัติ |
+| **AI Evals** | [`evals/`](./evals) | Golden Dataset 25 ข้อ, Eval Runner, ผลลัพธ์ Prompt v1 vs v2 |
+| **Observability** | [`observability/`](./observability) | Dashboard บันทึก Latency p50/p95/p99, Cost, Sample Traces |
+| **Ethics Review** | [`docs/ethics-review.md`](./docs/ethics-review.md) | การตอบ 5 คำถามจริยธรรม, 10-Item Checklist, PDPA |
+| **Runbook** | [`docs/runbook.md`](./docs/runbook.md) | คู่มือ Incident Response สำหรับ 4 สถานการณ์ฉุกเฉิน |
+| **Code Review** | [`docs/code-review.md`](./docs/code-review.md) | Three-Layer Code Review บันทึก 5 PR สำคัญ |
+| **Database** | [`docs/scope.md`](./docs/scope.md), [`docs/erd.md`](./docs/erd.md), [`sql/`](./sql) | ขอบเขต ERD Mermaid, DDL Schema, Seed, Reports |
 
 ---
 **พัฒนาโดย**: ทีมโครงงานพัฒนาระบบร้านขายหนังสือและอีบุ๊กออนไลน์ (สาขาวิชาวิศวกรรมคอมพิวเตอร์ มทร.อีสาน ขอนแก่น)
